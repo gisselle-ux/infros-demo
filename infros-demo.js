@@ -23,55 +23,55 @@
   }
   _buildHTML();
   const _root = { getElementById: (id) => _shadow.getElementById(id), querySelector: (sel) => _shadow.querySelector(sel), querySelectorAll: (sel) => _shadow.querySelectorAll(sel) };
-  function _restartDemo() {
-    _timerIds.forEach(id => clearTimeout(id)); _timerIds.clear(); _buildHTML();
-    Object.assign(_root, { getElementById: (id) => _shadow.getElementById(id), querySelector: (sel) => _shadow.querySelector(sel), querySelectorAll: (sel) => _shadow.querySelectorAll(sel) });
-    _initDemo();
-  }
-  function _initDemo() {
+  // ── Timer interception — must be first so all animation timers are tracked ────
+  const _timerIds = new Set();
+  const _nativeSetTimeout  = window.setTimeout.bind(window);
+  const _nativeClearTimeout = window.clearTimeout.bind(window);
+  const _nativeSetInterval  = window.setInterval.bind(window);
+  const _nativeClearInterval = window.clearInterval.bind(window);
 
-// ── Timer interception — must be first so all animation timers are tracked ────
-const _timerIds = new Set();
-const _nativeSetTimeout  = window.setTimeout.bind(window);
-const _nativeClearTimeout = window.clearTimeout.bind(window);
-const _nativeSetInterval  = window.setInterval.bind(window);
-const _nativeClearInterval = window.clearInterval.bind(window);
+  window.setTimeout = function(fn, delay, ...args) {
+    const id = _nativeSetTimeout(fn, delay, ...args);
+    _timerIds.add(id);
+    return id;
+  };
+  window.clearTimeout = function(id) {
+    _timerIds.delete(id);
+    return _nativeClearTimeout(id);
+  };
+  window.setInterval = function(fn, delay, ...args) {
+    const id = _nativeSetInterval(fn, delay, ...args);
+    _timerIds.add(id);
+    return id;
+  };
+  window.clearInterval = function(id) {
+    _timerIds.delete(id);
+    return _nativeClearInterval(id);
+  };
 
-window.setTimeout = function(fn, delay, ...args) {
-  const id = _nativeSetTimeout(fn, delay, ...args);
-  _timerIds.add(id);
-  return id;
-};
-window.clearTimeout = function(id) {
-  _timerIds.delete(id);
-  return _nativeClearTimeout(id);
-};
-window.setInterval = function(fn, delay, ...args) {
-  const id = _nativeSetInterval(fn, delay, ...args);
-  _timerIds.add(id);
-  return id;
-};
-window.clearInterval = function(id) {
-  _timerIds.delete(id);
-  return _nativeClearInterval(id);
-};
-
-// Scale only .screen-container — keeps body transform-free so position:fixed works
-(function fitCanvas() {
-  function scale() {
+  // ── fitCanvas — runs once, ResizeObserver keeps it live ─────────────────────
+  let _scaleRunning = false;
+  function _scaleCanvas() {
     const hostRect = _shadowHost.getBoundingClientRect(); const s = hostRect.width / 1290;
     const sc = _root.querySelector('.screen-container');
-    sc.style.transform = `scale(${s})`;
-    sc.style.transformOrigin = 'center center';
-    // Phone scene inner still needs scaling (pixel-positioned content inside)
+    if (sc) { sc.style.transform = `scale(${s})`; sc.style.transformOrigin = 'center center'; }
     const phoneInner = _root.querySelector('.phone-scene-inner');
     if (phoneInner) { phoneInner.style.transform = `scale(${s})`; phoneInner.style.transformOrigin = 'center center'; }
   }
-  scale();
-  window.addEventListener('resize', scale);
-  new ResizeObserver(scale).observe(_shadowHost);
-})();
+  if (!_scaleRunning) {
+    _scaleRunning = true;
+    window.addEventListener('resize', _scaleCanvas);
+    new ResizeObserver(_scaleCanvas).observe(_shadowHost);
+  }
 
+
+  function _restartDemo() {
+    _timerIds.forEach(id => clearTimeout(id)); _timerIds.clear(); _buildHTML();
+    Object.assign(_root, { getElementById: (id) => _shadow.getElementById(id), querySelector: (sel) => _shadow.querySelector(sel), querySelectorAll: (sel) => _shadow.querySelectorAll(sel) });
+    _scaleCanvas();
+    _initDemo();
+  }
+  function _initDemo() {
 // ── Scene Timing ─────────────────────────────────────────────────────────────
 const PHONE_NOTIF_DELAY   = 800;
 const PHONE_HOLD_DURATION = 1100;
