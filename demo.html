@@ -3601,7 +3601,7 @@ window.clearInterval = function(id) {
 (function fitCanvas() {
   function scale() {
     const barH = 52;
-    const s = Math.min(window.innerWidth / 1440, (window.innerHeight - barH) / 1400);
+    const s = window.innerWidth / 1290;
     const sc = document.querySelector('.screen-container');
     sc.style.transform = `scale(${s})`;
     sc.style.transformOrigin = 'center center';
