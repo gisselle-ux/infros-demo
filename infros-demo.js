@@ -909,7 +909,7 @@ function startFinalScene() {
 
     // After a brief pause, begin slow pan right
     setTimeout(() => {
-      canvas.style.transition = `transform 7s cubic-bezier(0.25, 0, 0.75, 1)`;
+      canvas.style.transition = `transform 3.5s cubic-bezier(0.25, 0, 0.75, 1)`;
       canvas.style.transform  = `scale(${scale}) translateX(${Math.round(maxPan / scale)}px)`;
     }, 400);
 
@@ -918,7 +918,7 @@ function startFinalScene() {
       _wrapper.style.transition = 'opacity 1s ease';
       _wrapper.style.opacity = '0';
       setTimeout(() => _restartDemo(), 1000);
-    }, 8000);
+    }, 4200);
   }, 520);
 }
 
