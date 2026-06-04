@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Widget Test</title>
+  <style>
+    /* Simulate a Webflow page with its own styles that should NOT leak into the widget */
+    body { font-family: Arial, sans-serif; background: #f0f0f0; margin: 0; padding: 0; }
+    h1 { color: red; font-size: 48px; padding: 40px 40px 0; }
+    p { color: green; padding: 0 40px; }
+  </style>
+</head>
+<body>
+  <h1>Webflow Page — styles above should NOT affect the demo below</h1>
+  <p>Some page content here.</p>
+
+  <!-- Infros Demo Widget — just drop this script tag -->
+  <script src="infros-demo.js"></script>
+
+</body>
+</html>
